@@ -47,7 +47,9 @@ const Board = ({size}) => {
                         value: value,
                         isKing: false,
                         posX: getPosX(x),
-                        posY: getPosY(y)
+                        posY: getPosY(y),
+                        isSelected: false,
+                        id: `${x}${y}`
                     });
                 }else if(y >= 5 && isPrimaryColor){
                     value = tileValues.player2;
@@ -55,7 +57,9 @@ const Board = ({size}) => {
                       value: value,
                       isKing: false,
                       posX: getPosX(x),
-                      posY: getPosY(y)
+                      posY: getPosY(y),
+                      isSelected: false,
+                      id: `${x}${y}`
                     });
                 }else{
                     value = tileValues.neutral;
@@ -89,8 +93,10 @@ const Board = ({size}) => {
                 <Piece
                     value={piece.value}
                     isKing={piece.isKing}
+                    isSelected={piece.isSelected}
                     posX={piece.posX}
-                    posY={piece.posY} />
+                    posY={piece.posY}
+                    id={piece.id} />
             ))}
 
         </div>

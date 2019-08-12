@@ -4,13 +4,13 @@ import { colors } from "../../util/styles";
 
 
 
-export const style = (x, y) =>
+export const style = (styles) =>
   StyleSheet.create({
     player1:{
         display: 'block',
         position: 'absolute',
-        top: y+'px',
-        left: x+'px',
+        top: styles.posY+'px',
+        left: styles.posX+'px',
         width: '60px',
         height: '60px',
         borderRadius: '50%',
@@ -21,13 +21,25 @@ export const style = (x, y) =>
     player2: {
         display: 'block',
         position: 'absolute',
-        top: y+'px',
-        left: x+'px',
+        top: styles.posY+'px',
+        left: styles.posX+'px',
         width: '60px',
         height: '60px',
         borderRadius: '50%',
         backgroundColor: colors.player2,
         zIndex: "1000"
         
+    },
+    hovered: {
+        boxShadow: '0px 0px 5px 5px'+colors.hover
+    },
+    selected: {
+        boxShadow: '0px 0px 5px 5px'+colors.hover
+    },
+
+    king: {
+        border: '2px solid '+colors.king,
+        top: styles.posY-1+'px',
+        left: styles.posX-1+'px'
     }
   });

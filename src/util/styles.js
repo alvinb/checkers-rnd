@@ -34,7 +34,9 @@ export const colors = {
   dark: "#aaaaaa",
   error: "#D0021B",
   player1: "#ffffff",
-  player2: "#000000"
+  player2: "#000000",
+  hover: "#87CEEB",
+  king: "#FFDF00"
 };
 
 export const children = child => {
