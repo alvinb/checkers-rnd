@@ -3,6 +3,7 @@ import React, { useState, createContext } from 'react';
 export const AppContext = createContext();
 export const BoardContext = createContext();
 export const PieceContext = createContext();
+export const TileContext = createContext();
 
 
 
@@ -36,15 +37,17 @@ export const AppProvider = props => {
         //     isTaken: false
         // }
     ]);
-
     const [pieces, setPieces] = useState([]);
+    const [tiles, setTiles] = useState([]);
 
     return (
         <AppContext.Provider value={{app, setApp}}>
         <BoardContext.Provider value={{board, setBoard}}>
+        <TileContext.Provider value={{tiles, setTiles}}>
         <PieceContext.Provider value={{pieces, setPieces}}>
             { props.children }
         </PieceContext.Provider>
+        </TileContext.Provider>
         </BoardContext.Provider>
         </AppContext.Provider>
     );

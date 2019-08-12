@@ -17,5 +17,9 @@ export const style = styles =>
       display: 'inline-block',
       float: 'left',
       position: 'relative'
+    },
+    canMoveTo: {
+        boxShadow: '0px 0px 5px 5px'+colors.hover,
+        zIndex: '1000'
     }
   });

@@ -6,23 +6,47 @@ import { style } from './style';
 import { PieceContext } from './../../provider/app-provider';
 
 
-const Piece = ({ posX, posY, value, isKing, isSelected, id }) => {
-    const [isHovered, setHoveredState] = useState(false);
+const Piece = ({ posX, posY, value, isKing, isSelected, id, isHovered }) => {
     console.log(id);
     const { pieces, setPieces } = useContext(PieceContext);
     
     const styles = style({posX, posY, isHovered});
     
     const handleMouseEnter = (e) => {
-        setHoveredState(true);
+        if(isSelected) return;
+        
+        setPieces(previousPieces => {
+            const newPieces = previousPieces.map(piece => {
+                if (piece.id === id) {
+                    piece.isHovered = true;
+                }else{
+                    piece.isHovered = false;
+                }
+
+                return piece;
+            });
+
+            return newPieces;
+        });
+
 
     }
     const handleMouseLeave = e => {
-        setHoveredState(false);
+        if (isSelected) return;
+
+        setPieces(previousPieces => {
+            const newPieces = previousPieces.map(piece => {
+                piece.isHovered = false;
+
+                return piece;
+          });
+
+          return newPieces;
+        });
+
     };
 
     const handleClick = e => {
-        setHoveredState(!isHovered);
         setPieces(previousPieces => {
             const newPieces = previousPieces.map(piece => {
                 if(piece.id === id){
@@ -33,7 +57,6 @@ const Piece = ({ posX, posY, value, isKing, isSelected, id }) => {
 
                 return piece;
             });
-
             return newPieces;
         })
     }
