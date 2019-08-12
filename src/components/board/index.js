@@ -10,7 +10,16 @@ import Tile from './../tile';
 import Piece from './../piece';
 
 //util
-import { tileValues, getPosX, getPosY, tileContainsEnemy, direction, isOccupied } from './../../util/game';
+import { 
+    tileValues,
+    getPosX, 
+    getPosY, 
+    tileContainsEnemy, 
+    direction, 
+    isOccupied,
+    getIndexX,
+    getIndexY
+} from './../../util/game';
 
 
 const Board = ({size}) => {
@@ -24,7 +33,7 @@ const Board = ({size}) => {
     const [eatDirection, setEatDirection] = useState(null);
 
 
-    //set up
+    //set up. runs only once. same as componentDidMount
     useEffect(() => {
 
         const boardData = [];
@@ -85,6 +94,7 @@ const Board = ({size}) => {
         setPieces(pieceData);
     }, [])
 
+    // run callback when pieces update
     useEffect(() => {
         //reset tiles first
         setBoard(previous => {
@@ -103,18 +113,20 @@ const Board = ({size}) => {
         const hoveredPiece = pieces.filter(piece => {
           return piece.isHovered;
         });
-        const neutralTiles = board.filter(tile => {
-            return tile.value === tileValues.neutral;
-        });
+
 
         const validTiles = board.filter(tile => {
             return tile.value !== tileValues.notUsed;
         });
+
+        // when user has selected a piece
         if(selectedPiece[0]){
             setSelectedPiece(selectedPiece[0]);
 
             getValidMoves(validTiles, selectedPiece[0])
-        }else if(!selectedPiece[0] && hoveredPiece[0]){
+        }
+        // when user has not selected a piece but is hovering onto one 
+        else if(!selectedPiece[0] && hoveredPiece[0]){
             getValidMoves(validTiles, hoveredPiece[0])
         }
 
@@ -130,24 +142,25 @@ const Board = ({size}) => {
 
     const getPieceAt = (x,y) => {
         const result = pieces.filter(piece => {
-            return piece.id === `${x}${y}`;
+            return piece.posX === getPosX(x) && piece.posY === getPosY(y);
         })
         return result.length > 0 ? result[0]: null;
     }
-    const getValidMoves = (validTiles, selectedPiece) => {
+
+    // updates Board with all the valid tiles that the current piece can move to
+    const getValidMoves = (validTiles, piece) => {
         const result = [];
 
-        const tilesAtOffset1 = getTilesWithOffset(validTiles, selectedPiece, 1);
-        const tilesAtOffset2 = getTilesWithOffset(validTiles, selectedPiece, 2);
-
+        const tilesAtOffset1 = getTilesWithOffset(validTiles, piece, 1);
+        const tilesAtOffset2 = getTilesWithOffset(validTiles, piece, 2);
         tilesAtOffset1.forEach(tile => {
             if(!isOccupied(tile)){
                 result.push(tile);
             }
 
-            if(tileContainsEnemy(selectedPiece.value, tile.value) ){
+            if(tileContainsEnemy(piece.value, tile.value) ){
                 if(canEatAtTile(tile)){
-                    updateTargetArr(selectedPiece, getPieceAt(tile.indexX, tile.indexY));
+                    updateTargetArr(piece, getPieceAt(tile.indexX, tile.indexY));
                     result.push(tile);
                 }
 
@@ -171,9 +184,8 @@ const Board = ({size}) => {
 
     }
     const canEatAtTile = (tile) => {
-        const pCoordinates = selectedPiece.id.split("");
-        const px = parseInt(pCoordinates[0]);
-        const py = parseInt(pCoordinates[1]);
+        const px = getIndexX(selectedPiece.posX);
+        const py = getIndexY(selectedPiece.posY);
 
         if(px > tile.indexX){
             if(py > tile.indexY){
@@ -205,10 +217,8 @@ const Board = ({size}) => {
 
     }
     const getTilesWithOffset = (tiles, piece, offset) => {
-        const pCoordinates = piece.id.split("");
-        const px = parseInt(pCoordinates[0]);
-        const py = parseInt(pCoordinates[1]);
-
+        const px = getIndexX(piece.posX);
+        const py = getIndexY(piece.posY);
         return tiles.filter(tile => {
 
             if(piece.isKing){

@@ -26,6 +26,13 @@ export const getPosY = (y) => {
     return y*tileSize + offsetY;
 };
 
+export const getIndexX = (posX) => {
+    return (posX - offsetX)/tileSize;
+}
+export const getIndexY = (posY) => {
+    return (posY - offsetY) / tileSize;
+}
+
 
 export const isInBoundsWithDistance = (x, y, offset) => {
 
