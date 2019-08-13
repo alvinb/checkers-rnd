@@ -5,10 +5,10 @@ export const tileValues = {
     player2: 2
 }
 export const direction = {
-    topRight: 0,
-    bottomRight: 1,
-    bottomLeft: 2,
-    topLeft: 3
+    topRight: 'top-right',
+    bottomRight: 'bottom-right',
+    bottomLeft: 'bottom-left',
+    topLeft: 'top-left'
 };
 
 export const boardSize = 8;
@@ -59,4 +59,12 @@ export const tileContainsEnemy = (pieceValue, tileValue) => {
 
 export const isOccupied = (tile) => {
     return (tile.value === tileValues.player1 || tile.value === tileValues.player2)
+}
+
+export const isOccupiedAt = (x, y, tiles) => {
+    const tile = tiles.find(tile => {
+        return (tile.indexX === x && tile.indexY === y)
+    });
+    return (tile.value === tileValues.player1 || tile.value === tileValues.player2)
+
 }

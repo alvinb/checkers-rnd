@@ -18,7 +18,8 @@ import {
     direction, 
     isOccupied,
     getIndexX,
-    getIndexY
+    getIndexY,
+    isOccupiedAt
 } from './../../util/game';
 
 
@@ -30,7 +31,7 @@ const Board = ({size}) => {
     const [p1Targets, setP1Targets] = useState([]);
     const [p2Targets, setP2Targets] = useState([]);
     const [selectedPiece, setSelectedPiece] = useState([]);
-    const [eatDirection, setEatDirection] = useState(null);
+    // const [eatDirection, setEatDirection] = useState(null);
 
 
     //set up. runs only once. same as componentDidMount
@@ -61,6 +62,8 @@ const Board = ({size}) => {
                         isKing: false,
                         posX: getPosX(x),
                         posY: getPosY(y),
+                        x: x,
+                        y: y,
                         isSelected: false,
                         isHovered: false,
                         id: `${x}${y}`
@@ -72,6 +75,8 @@ const Board = ({size}) => {
                       isKing: false,
                       posX: getPosX(x),
                       posY: getPosY(y),
+                      x: x,
+                      y: y,
                       isSelected: false,
                       isHovered: false,
                       id: `${x}${y}`
@@ -93,6 +98,7 @@ const Board = ({size}) => {
         setBoard(boardData);
         setPieces(pieceData);
     }, [])
+
 
     // run callback when pieces update
     useEffect(() => {
@@ -132,11 +138,14 @@ const Board = ({size}) => {
 
     }, [pieces])
 
+
     const updateTargetArr = (piece, target) => {
+        if(!piece.isSelected) return;
+
         if(piece.value === tileValues.player1){
-            setP1Targets(p1Targets.push(target));
+            setP1Targets(previous => [...previous, target]);
         }else if(piece.value === tileValues.player2){
-            setP2Targets(p2Targets.push(target));            
+            setP2Targets(previous => [...previous, target]);
         }
     }
 
@@ -147,21 +156,29 @@ const Board = ({size}) => {
         return result.length > 0 ? result[0]: null;
     }
 
+    const getTileAt = (x, y, tiles) => {
+        return tiles.find(tile => {
+            return tile.indexX === x && tile.indexY === y;
+        });
+    }
+
     // updates Board with all the valid tiles that the current piece can move to
     const getValidMoves = (validTiles, piece) => {
         const result = [];
 
         const tilesAtOffset1 = getTilesWithOffset(validTiles, piece, 1);
         const tilesAtOffset2 = getTilesWithOffset(validTiles, piece, 2);
+        console.log('tilesAtOffset2',tilesAtOffset2);
         tilesAtOffset1.forEach(tile => {
             if(!isOccupied(tile)){
                 result.push(tile);
             }
 
             if(tileContainsEnemy(piece.value, tile.value) ){
-                if(canEatAtTile(tile)){
+                let destinationTile = canEatAtTile(tile, tilesAtOffset2);
+                if(destinationTile){
                     updateTargetArr(piece, getPieceAt(tile.indexX, tile.indexY));
-                    result.push(tile);
+                    result.push(destinationTile);
                 }
 
             }
@@ -183,37 +200,49 @@ const Board = ({size}) => {
         })
 
     }
-    const canEatAtTile = (tile) => {
+    const canEatAtTile = (tile, tilesAtOffset2) => {
         const px = getIndexX(selectedPiece.posX);
         const py = getIndexY(selectedPiece.posY);
-
+        let d = null;
         if(px > tile.indexX){
             if(py > tile.indexY){
-                setEatDirection(direction.topLeft);
+                // setEatDirection(direction.topLeft);
+                d = direction.topLeft;
             }else{
-                setEatDirection(direction.bottomLeft);
+                // setEatDirection(direction.bottomLeft);
+                d = direction.bottomLeft;
             }
         }else{
             if(py < tile.indexY){
-                setEatDirection(direction.bottomRight);
+                // setEatDirection(direction.bottomRight);
+                d = direction.bottomRight;
             }else{
-                setEatDirection(direction.topRight);
+                // setEatDirection(direction.topRight);
+                d = direction.topRight;
             }
         }
-
-        switch(eatDirection){
+        // console.log('eatDirection', eatDirection);
+        console.log('eat d', d);
+        let destination = null;
+        switch(d){
             case direction.topRight:
-                return tile.indexX+2 === px && tile.indexY-2 === py;
+                destination = getTileAt(tile.indexX+1, tile.indexY-1, tilesAtOffset2);
+                break;
             case direction.bottomRight:
-                return tile.indexX+2 === px && tile.indexY+2 === py;
+                destination = getTileAt(tile.indexX+1, tile.indexY+1, tilesAtOffset2);
+                break;
             case direction.bottomLeft:
-                return tile.indexX-2 === px && tile.indexY+2 === py;
+                destination = getTileAt(tile.indexX-1, tile.indexY+1, tilesAtOffset2);
+                break;
             case direction.topLeft:
-                return tile.indexX-2 === px && tile.indexY-2 === py;
+                destination = getTileAt(tile.indexX-1, tile.indexY-1, tilesAtOffset2);
+                break;
             default:
-                return false;
+                // do nothing
 
         }
+        return destination && !isOccupied(destination)? destination : null;
+
 
     }
     const getTilesWithOffset = (tiles, piece, offset) => {
@@ -262,6 +291,8 @@ const Board = ({size}) => {
                     isHovered={piece.isHovered}
                     posX={piece.posX}
                     posY={piece.posY}
+                    x={piece.x}
+                    y={piece.y}
                     id={piece.id}
                     key={i} />
             ))}

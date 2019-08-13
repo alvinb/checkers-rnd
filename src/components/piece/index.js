@@ -3,16 +3,22 @@ import { css } from 'aphrodite/no-important';
 import { style } from './style';
 
 
-import { PieceContext } from './../../provider/app-provider';
+import { PieceContext, AppContext } from './../../provider/app-provider';
+
+import { tileValues } from './../../util/game';
 
 
-const Piece = ({ posX, posY, value, isKing, isSelected, id, isHovered }) => {
+const Piece = ({ posX, posY, value, isKing, isSelected, id, isHovered, x, y }) => {
     console.log(id);
     const { pieces, setPieces } = useContext(PieceContext);
+    const { app, setApp } = useContext(AppContext);
     
     const styles = style({posX, posY, isHovered});
     
     const handleMouseEnter = (e) => {
+        if(app.playersTurn !== value){
+            return;
+        }
         if(isSelected) return;
         
         setPieces(previousPieces => {
@@ -32,6 +38,9 @@ const Piece = ({ posX, posY, value, isKing, isSelected, id, isHovered }) => {
 
     }
     const handleMouseLeave = e => {
+        if (app.playersTurn !== value) {
+          return;
+        }
         if (isSelected) return;
 
         setPieces(previousPieces => {
@@ -47,6 +56,9 @@ const Piece = ({ posX, posY, value, isKing, isSelected, id, isHovered }) => {
     };
 
     const handleClick = e => {
+        if (app.playersTurn !== value) {
+          return;
+        }
         setPieces(previousPieces => {
             const newPieces = previousPieces.map(piece => {
                 if(piece.id === id){
@@ -60,14 +72,30 @@ const Piece = ({ posX, posY, value, isKing, isSelected, id, isHovered }) => {
             return newPieces;
         })
     }
+    const dragStart = () => {
+        console.log('drag start');
+    }
+
+    const dragEnd = () => {
+        console.log("drag end");
+    };
+
+    const drop = () => {
+        console.log('drag drop');
+    }
 
     return (
         <div
-            className={`${css(styles['player' + value], !isSelected && isHovered && styles.hovered, isKing && styles.king, isSelected && styles.selected)}`}
+            className={`${css(styles['player' + value], isKing && styles.king, isSelected && styles.selected)}`}
             draggable='true'
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onClick={handleClick}
+            onDragStart={dragStart}
+            // onDragOver={dragOver}
+            onDragEnd={dragEnd}
+            onDrop={drop}
+
         />
   );
 };

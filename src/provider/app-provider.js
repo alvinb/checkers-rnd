@@ -1,4 +1,5 @@
 import React, { useState, createContext } from 'react';
+import { tileValues } from './../util/game'
 
 export const AppContext = createContext();
 export const BoardContext = createContext();
@@ -7,13 +8,13 @@ export const TileContext = createContext();
 
 
 
-
 export const AppProvider = props => {
     const [app, setApp] = useState({
         size: 8,
         player1PieceCount: 12,
         playerTwoPieceCount: 12,
-        isGameOver: false
+        isGameOver: false,
+        playersTurn: tileValues.player1 // player 1 moves first
     });
     const [board, setBoard] = useState([
         // {
