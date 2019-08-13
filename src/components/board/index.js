@@ -30,7 +30,7 @@ const Board = ({size}) => {
     const { pieces, setPieces } = useContext(PieceContext);
     const [p1Targets, setP1Targets] = useState([]);
     const [p2Targets, setP2Targets] = useState([]);
-    const [selectedPiece, setSelectedPiece] = useState([]);
+    const [hoveredPiece, setHoveredPiece] = useState(null);
     // const [eatDirection, setEatDirection] = useState(null);
 
 
@@ -112,28 +112,19 @@ const Board = ({size}) => {
             return newTiles;
         })
 
-
-        const selectedPiece = pieces.filter(piece => {
-            return piece.isSelected;
-        });
         const hoveredPiece = pieces.filter(piece => {
           return piece.isHovered;
         });
-
 
         const validTiles = board.filter(tile => {
             return tile.value !== tileValues.notUsed;
         });
 
-        // when user has selected a piece
-        if(selectedPiece[0]){
-            setSelectedPiece(selectedPiece[0]);
 
-            getValidMoves(validTiles, selectedPiece[0])
-        }
         // when user has not selected a piece but is hovering onto one 
-        else if(!selectedPiece[0] && hoveredPiece[0]){
+        if(hoveredPiece[0]){
             getValidMoves(validTiles, hoveredPiece[0])
+            setHoveredPiece( hoveredPiece[0] );
         }
 
     }, [pieces])
@@ -201,8 +192,8 @@ const Board = ({size}) => {
 
     }
     const canEatAtTile = (tile, tilesAtOffset2) => {
-        const px = getIndexX(selectedPiece.posX);
-        const py = getIndexY(selectedPiece.posY);
+        const px = getIndexX(hoveredPiece.posX);
+        const py = getIndexY(hoveredPiece.posY);
         let d = null;
         if(px > tile.indexX){
             if(py > tile.indexY){
@@ -222,7 +213,6 @@ const Board = ({size}) => {
             }
         }
         // console.log('eatDirection', eatDirection);
-        console.log('eat d', d);
         let destination = null;
         switch(d){
             case direction.topRight:

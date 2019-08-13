@@ -9,7 +9,6 @@ import { tileValues } from './../../util/game';
 
 
 const Piece = ({ posX, posY, value, isKing, isSelected, id, isHovered, x, y }) => {
-    console.log(id);
     const { pieces, setPieces } = useContext(PieceContext);
     const { app, setApp } = useContext(AppContext);
     
@@ -19,7 +18,6 @@ const Piece = ({ posX, posY, value, isKing, isSelected, id, isHovered, x, y }) =
         if(app.playersTurn !== value){
             return;
         }
-        if(isSelected) return;
         
         setPieces(previousPieces => {
             const newPieces = previousPieces.map(piece => {
@@ -41,7 +39,6 @@ const Piece = ({ posX, posY, value, isKing, isSelected, id, isHovered, x, y }) =
         if (app.playersTurn !== value) {
           return;
         }
-        if (isSelected) return;
 
         setPieces(previousPieces => {
             const newPieces = previousPieces.map(piece => {
@@ -55,46 +52,64 @@ const Piece = ({ posX, posY, value, isKing, isSelected, id, isHovered, x, y }) =
 
     };
 
-    const handleClick = e => {
+    // const handleClick = e => {
+    //     if (app.playersTurn !== value) {
+    //       return;
+    //     }
+    //     setPieces(previousPieces => {
+    //         const newPieces = previousPieces.map(piece => {
+    //             if(piece.id === id){
+    //                 piece.isSelected = !isSelected
+    //             }else{
+    //                 piece.isSelected = false;
+    //             }
+
+    //             return piece;
+    //         });
+    //         return newPieces;
+    //     })
+    // }
+
+    const dragStart = (event) => {
+        console.log('drag start');
+        event.dataTransfer.setData('srcId', event.target.id);
+
         if (app.playersTurn !== value) {
-          return;
+            return;
         }
         setPieces(previousPieces => {
-            const newPieces = previousPieces.map(piece => {
-                if(piece.id === id){
-                    piece.isSelected = !isSelected
-                }else{
+            return previousPieces.map(piece => {
+                if (piece.id === id) {
+                    piece.isSelected = true;
+                } else {
                     piece.isSelected = false;
                 }
 
                 return piece;
             });
-            return newPieces;
-        })
-    }
-    const dragStart = () => {
-        console.log('drag start');
+        });
     }
 
     const dragEnd = () => {
         console.log("drag end");
     };
 
-    const drop = () => {
-        console.log('drag drop');
+
+    const dragOver = (event) => {
+        event.preventDefault();
     }
 
     return (
         <div
-            className={`${css(styles['player' + value], isKing && styles.king, isSelected && styles.selected)}`}
+            id={`piece-${id}`}
+            className={`${css(styles['player' + value], isKing && styles.king)}`}
             draggable='true'
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            onClick={handleClick}
+            // onClick={handleClick}
             onDragStart={dragStart}
-            // onDragOver={dragOver}
+            onDragOver={dragOver}
             onDragEnd={dragEnd}
-            onDrop={drop}
 
         />
   );

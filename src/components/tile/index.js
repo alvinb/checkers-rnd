@@ -41,6 +41,7 @@ const Tile = ({indexX, indexY, isPrimaryColor, value, canMoveTo}) => {
             const coordinates = getTargetCoordinates(selectedPiece);
             const hasEaten = !!coordinates;
 
+            // update pieces
             setPieces(previous => {
                 const newPieces = [...previous];
 
@@ -90,11 +91,81 @@ const Tile = ({indexX, indexY, isPrimaryColor, value, canMoveTo}) => {
             })
         }
     }
+    const handleDrop = (event) => {
+        if(!canMoveTo) return;
 
+        var selectedPiece = pieces.find(piece => {
+          return piece.isSelected;
+        });
+
+        const coordinates = getTargetCoordinates(selectedPiece);
+        const hasEaten = !!coordinates;
+
+        const srcId = event.dataTransfer.getData('srcId');
+
+        let [x,y] = srcId.split('-')[1].split('');
+        x = parseInt(x);
+        y = parseInt(y)
+        
+        setPieces(previous => {
+            const newPieces = [...previous];
+
+            newPieces.forEach(piece => {
+                if (piece.isSelected) {
+                    piece.posX = getPosX(indexX);
+                    piece.posY = getPosY(indexY);
+                    piece.x = indexX;
+                    piece.y = indexY;
+                    piece.isSelected = false;
+                }
+            });
+            // remove piece that was eaten
+            if(hasEaten){
+                const index = newPieces.findIndex(piece => {
+
+                    // console.log(`(px,py) = (${piece.x}, ${piece.y})`);
+                    // console.log(`(sx,sy) = (${selectedPiece.x}, ${selectedPiece.y})`);
+
+                    return (piece.x === (selectedPiece.x - coordinates.x) && piece.y === (selectedPiece.y - coordinates.y ))
+                });
+                newPieces.splice(index, 1);
+            }
+
+            return newPieces;
+
+
+        });
+
+        setApp(previous => {
+            const newAppState = { ...previous };
+            const last = newAppState.playersTurn;
+            newAppState.playersTurn = last === tileValues.player1 ? tileValues.player2 : tileValues.player1;
+
+          return newAppState;
+        });
+
+        //update tile values since the selected piece has moved
+        setBoard(previous => {
+            return previous.map(tile => {
+                if(tile.indexX === getIndexX(selectedPiece.posX) && tile.indexY === getIndexY(selectedPiece.posY)){
+                    tile.value = tileValues.neutral;
+                }else if(tile.indexX === indexX && tile.indexY === indexY){
+                    tile.value = selectedPiece.value;
+                }
+                return tile;
+            })
+        })
+
+    }
+    const handleDragOver = (event) => {
+        event.preventDefault();
+    }
     return (
         <div 
             className={`${css(styles.tile, canMoveTo && styles.canMoveTo)} player${value} ${indexX}-${indexY}`}
-            onClick={handleClick}
+            // onClick={handleClick}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
         ></div>
     );
 };
