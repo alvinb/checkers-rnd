@@ -56,6 +56,8 @@ const Board = ({size}) => {
                         posY: getPosY(y),
                         x: x,
                         y: y,
+                        prevX: x,
+                        prevY: y,
                         isSelected: false,
                         isHovered: false,
                         id: `${x}${y}`
@@ -69,6 +71,8 @@ const Board = ({size}) => {
                       posY: getPosY(y),
                       x: x,
                       y: y,
+                      prevX: x,
+                      prevY: y,
                       isSelected: false,
                       isHovered: false,
                       id: `${x}${y}`
@@ -77,11 +81,12 @@ const Board = ({size}) => {
                     value = tileValues.neutral;
                 }
                 boardData.push({
-                    indexX: x,
-                    indexY: y,
-                    value: value,
-                    isPrimaryColor: isPrimaryColor,
-                    canMoveTo: false
+                  indexX: x,
+                  indexY: y,
+                  value: value,
+                  isPrimaryColor: isPrimaryColor,
+                  canMoveTo: false,
+                  id: `${x}${y}`
                 });
 
                 isPrimaryColor = !isPrimaryColor;
@@ -101,6 +106,7 @@ const Board = ({size}) => {
                     isPrimaryColor={tile.isPrimaryColor}
                     value={tile.value}
                     canMoveTo={tile.canMoveTo}
+                    id={tile.id}
                     key={i}/>
             ))}
             {pieces.map( (piece, i) => (
@@ -113,6 +119,8 @@ const Board = ({size}) => {
                     posY={piece.posY}
                     x={piece.x}
                     y={piece.y}
+                    prevX={piece.x}
+                    prevY={piece.y}
                     id={piece.id}
                     key={i} />
             ))}

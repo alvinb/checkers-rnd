@@ -24,6 +24,7 @@ const Piece = ({ posX, posY, value, isKing, isSelected, id, x, y }) => {
     const styles = style({posX, posY, isHovered});
 
     useEffect(() =>{
+        console.log('running effect', isHovered)
         if(isHovered){
             setCanMoveTo(getHoveredPiece(id, pieces), board, setBoard);
         }else{
@@ -33,6 +34,9 @@ const Piece = ({ posX, posY, value, isKing, isSelected, id, x, y }) => {
 
     
     const handleMouseEnter = (e) => {
+        console.log('current user', app.playersTurn);
+        console.log("current value", value);
+
         if(app.playersTurn !== value){
             return;
         }
@@ -40,9 +44,6 @@ const Piece = ({ posX, posY, value, isKing, isSelected, id, x, y }) => {
         setIsHovered(true);
     }
     const handleMouseLeave = e => {
-        if (app.playersTurn !== value) {
-          return;
-        }
 
         setIsHovered(false);
 

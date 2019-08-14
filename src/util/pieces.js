@@ -46,6 +46,12 @@ export const unSelectPiece = (id, piecesState, setPiecesState) => {
     }))
 }
 
+export const getSelected = (pieces) => {
+    return pieces.find(piece => {
+        return piece.isSelected
+    });
+}
+
 export const setValue = (payload, piecesState, setPiecesState) => {
     const { id, value} = payload;
 
@@ -75,6 +81,42 @@ export const getHoveredPiece = (id, piecesState ) => {
     });
 }
 
+export const movePieceTo = (data, pieces, setPieces) => {
+    const {x, y, id} = data;
+    const {posX, posY} = getPosition(x, y);
+
+    setPieces(pieces.map(piece => {
+        if(piece.id === id){
+            piece.x = x;
+            piece.y = y;
+            piece.posX = posX;
+            piece.posY = posY;
+            piece.prevX = x;
+            piece.prevY = y;
+        }
+        return piece;
+    }))
+}
+export const getPieceAt = (coord, pieces, setPieces) => {
+    const {x, y} = coord;
+
+    return pieces.find(piece => {
+        return (piece.x === x && piece.y ===y)
+    });
+}
+
+export const removePiece = (id, pieces, setPieces) => {
+    const arr = [...pieces];
+
+    const i = arr.findIndex(piece => {
+        return piece.id === id;
+    });
+
+    arr.splice(i, 1);
+
+    setPieces(arr);
+    
+}
 // helper functions
 const getPosition = (x,y) => {
     return {

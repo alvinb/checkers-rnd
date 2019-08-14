@@ -1,17 +1,29 @@
-import React, { useContext, useState, useEffect }from "react";
+import React, { useContext, useState, useEffect }from 'react';
 import { css } from 'aphrodite/no-important';
 import { style } from './style';
 import { tileValues, getPosX, getPosY, getIndexX, getIndexY, direction, boardSize } from './../../util/game';
 
-import { BoardContext, PieceContext, AppContext } from "./../../provider/app-provider";
+import { BoardContext, PieceContext, AppContext } from './../../provider/app-provider';
 
-const Tile = ({indexX, indexY, isPrimaryColor, value, canMoveTo}) => {
+// util
+import { getSelected, movePieceTo, getPieceAt, removePiece } from './../../util/pieces';
+import { setTileValueAt, resetTileState } from "./../../util/tiles";
+
+// custom hooks
+// import { usePiecePreviousCoordinate } from './../../hooks/piece';
+
+const Tile = ({indexX, indexY, isPrimaryColor, value, canMoveTo, id}) => {
     const { board, setBoard } = useContext(BoardContext);
     const { pieces, setPieces} = useContext(PieceContext);
     const { app, setApp } = useContext(AppContext);
-    
+    const [hasDropped, setHasDropped] = useState(false);
 
+    // const prevCoordinates = usePiecePreviousCoordinate(getSelected(pieces));
     
+    useEffect(()=>{
+        resetTileState(board, setBoard);
+    },[hasDropped])
+
     const styles = style({isPrimaryColor})
 
     const getMoveData = (selectedPiece) => {
@@ -35,56 +47,52 @@ const Tile = ({indexX, indexY, isPrimaryColor, value, canMoveTo}) => {
 
     }
     
-    
+
     const handleDrop = (event) => {
         if(!canMoveTo) return;
-
-        var selectedPiece = pieces.find(piece => {
-          return piece.isSelected;
-        });
-
+        setHasDropped(true);
+        const selectedPiece = getSelected(pieces);
+        const {prevX, prevY} = {...selectedPiece};
+        
         const data = getMoveData(selectedPiece);
         const hasEaten = data.hasEaten;
-
         const srcId = event.dataTransfer.getData('srcId');
 
         let [x,y] = srcId.split('-')[1].split('');
+
         x = parseInt(x);
-        y = parseInt(y)
+        y = parseInt(y);
+
+        // movePiece
+        movePieceTo({
+            x: indexX,
+            y: indexY,
+            id: `${x}${y}`
+        }, pieces, setPieces)
+
+        setTileValueAt({
+            x: indexX,
+            y: indexY,
+            value: selectedPiece.value
+        }, board, setBoard);
         
-        setPieces(previous => {
-            const newPieces = [...previous];
+        // remove piece that was eaten
+        if(hasEaten){
 
-            newPieces.forEach(piece => {
-                if (piece.isSelected) {
-                    piece.posX = getPosX(indexX);
-                    piece.posY = getPosY(indexY);
-                    piece.x = indexX;
-                    piece.y = indexY;
-                    piece.isSelected = false;
+            const toRemove = getPieceAt({
+                x: selectedPiece.x - data.x,
+                y: selectedPiece.y - data.y
+            }, pieces, setPieces);
 
-                    if(indexY === boardSize-1){
-                        piece.isKing = true;
-                    }
-                }
-            });
-            // remove piece that was eaten
-            if(hasEaten){
+            removePiece(toRemove.id, pieces, setPieces);
+            
 
-                const index = newPieces.findIndex(piece => {
-
-                    // console.log(`(px,py) = (${piece.x}, ${piece.y})`);
-                    // console.log(`(sx,sy) = (${selectedPiece.x}, ${selectedPiece.y})`);
-
-                    return (piece.x === (selectedPiece.x - data.x) && piece.y === (selectedPiece.y - data.y ))
-                });
-                newPieces.splice(index, 1);
-            }
-
-            return newPieces;
-
-
-        });
+        }
+        setTileValueAt({
+            x: prevX,
+            y: prevY,
+            value: tileValues.neutral
+        }, board, setBoard);
 
         setApp(previous => {
             const newAppState = { ...previous };
@@ -93,23 +101,8 @@ const Tile = ({indexX, indexY, isPrimaryColor, value, canMoveTo}) => {
 
           return newAppState;
         });
-
-        //update tile values since the selected piece has moved
-        setBoard(previous => {
-            return previous.map(tile => {
-                console.log('hasEaten', hasEaten);
-                console.log('tile', tile);
-                console.log('selectedPiece', selectedPiece);
-                console.log('data', data);
-                
-                if(tile.indexX === (selectedPiece.x - data.x) && tile.indexY === (selectedPiece.y - data.y)){
-                    tile.value = tileValues.neutral;
-                }else if(tile.indexX === indexX && tile.indexY === indexY){
-                    tile.value = selectedPiece.value;
-                }
-                return tile;
-            })
-        })
+        
+        
 
     }
     const handleDragOver = (event) => {

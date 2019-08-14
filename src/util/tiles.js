@@ -27,6 +27,27 @@ export const resetTileState = (tiles, setTiles) => {
     }));
 }
 
+export const setTileValue = (payload, tiles, setTiles) => {
+    const {id, value} = payload;
+
+    setTiles(tiles.map(tile => {
+        if(id === tile.id){
+            tile.value = value
+        }
+        return tile;
+    }))
+}
+
+export const setTileValueAt = (payload, tiles, setTiles) => {
+    const {x, y, value} = payload;
+    setTiles(tiles.map(tile => {
+        if(x === tile.indexX && y === tile.indexY){
+            tile.value = value
+        }
+        return tile;
+    }))
+}
+
 const getValidMoves = (validTiles, piece) => {
     const result = [];
     const tilesAtOffset1 = getTilesWithOffset(
