@@ -1,54 +1,50 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import { css } from 'aphrodite/no-important';
 import { style } from './style';
 
 
-import { PieceContext, AppContext } from './../../provider/app-provider';
+import { PieceContext, AppContext, BoardContext } from './../../provider/app-provider';
 
 import { tileValues } from './../../util/game';
+import { setCanMoveTo, resetTileState } from "./../../util/tiles";
+import {
+    getHoveredPiece,
+    selectPiece,
+    unSelectPiece
+} from "./../../util/pieces";
 
 
-const Piece = ({ posX, posY, value, isKing, isSelected, id, isHovered, x, y }) => {
+const Piece = ({ posX, posY, value, isKing, isSelected, id, x, y }) => {
+    const [isHovered, setIsHovered] = useState(false);
     const { pieces, setPieces } = useContext(PieceContext);
+    const { board, setBoard } = useContext(BoardContext);
+
     const { app, setApp } = useContext(AppContext);
     
     const styles = style({posX, posY, isHovered});
+
+    useEffect(() =>{
+        if(isHovered){
+            setCanMoveTo(getHoveredPiece(id, pieces), board, setBoard);
+        }else{
+            resetTileState(board, setBoard);
+        }
+    },[isHovered])
+
     
     const handleMouseEnter = (e) => {
         if(app.playersTurn !== value){
             return;
         }
         
-        setPieces(previousPieces => {
-            const newPieces = previousPieces.map(piece => {
-                if (piece.id === id) {
-                    piece.isHovered = true;
-                }else{
-                    piece.isHovered = false;
-                }
-
-                return piece;
-            });
-
-            return newPieces;
-        });
-
-
+        setIsHovered(true);
     }
     const handleMouseLeave = e => {
         if (app.playersTurn !== value) {
           return;
         }
 
-        setPieces(previousPieces => {
-            const newPieces = previousPieces.map(piece => {
-                piece.isHovered = false;
-
-                return piece;
-          });
-
-          return newPieces;
-        });
+        setIsHovered(false);
 
     };
 
@@ -77,21 +73,13 @@ const Piece = ({ posX, posY, value, isKing, isSelected, id, isHovered, x, y }) =
         if (app.playersTurn !== value) {
             return;
         }
-        setPieces(previousPieces => {
-            return previousPieces.map(piece => {
-                if (piece.id === id) {
-                    piece.isSelected = true;
-                } else {
-                    piece.isSelected = false;
-                }
+        selectPiece(id, pieces, setPieces);
 
-                return piece;
-            });
-        });
     }
 
     const dragEnd = () => {
         console.log("drag end");
+        unSelectPiece(id, pieces, setPieces);
     };
 
 

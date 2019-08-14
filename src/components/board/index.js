@@ -13,13 +13,7 @@ import Piece from './../piece';
 import { 
     tileValues,
     getPosX, 
-    getPosY, 
-    tileContainsEnemy, 
-    direction, 
-    isOccupied,
-    getIndexX,
-    getIndexY,
-    isOccupiedAt
+    getPosY
 } from './../../util/game';
 
 
@@ -28,9 +22,7 @@ const Board = ({size}) => {
 
     const { board, setBoard } = useContext(BoardContext);
     const { pieces, setPieces } = useContext(PieceContext);
-    const [p1Targets, setP1Targets] = useState([]);
-    const [p2Targets, setP2Targets] = useState([]);
-    const [hoveredPiece, setHoveredPiece] = useState(null);
+
     // const [eatDirection, setEatDirection] = useState(null);
 
 
@@ -100,168 +92,6 @@ const Board = ({size}) => {
     }, [])
 
 
-    // run callback when pieces update
-    useEffect(() => {
-        //reset tiles first
-        setBoard(previous => {
-            const newTiles = [...previous];
-            newTiles.forEach(tile => {
-                tile.canMoveTo = false;
-            })
-
-            return newTiles;
-        })
-
-        const hoveredPiece = pieces.filter(piece => {
-          return piece.isHovered;
-        });
-
-        const validTiles = board.filter(tile => {
-            return tile.value !== tileValues.notUsed;
-        });
-
-
-        // when user has not selected a piece but is hovering onto one 
-        if(hoveredPiece[0]){
-            getValidMoves(validTiles, hoveredPiece[0])
-            setHoveredPiece( hoveredPiece[0] );
-        }
-
-    }, [pieces])
-
-
-    const updateTargetArr = (piece, target) => {
-        if(!piece.isSelected) return;
-
-        if(piece.value === tileValues.player1){
-            setP1Targets(previous => [...previous, target]);
-        }else if(piece.value === tileValues.player2){
-            setP2Targets(previous => [...previous, target]);
-        }
-    }
-
-    const getPieceAt = (x,y) => {
-        const result = pieces.filter(piece => {
-            return piece.posX === getPosX(x) && piece.posY === getPosY(y);
-        })
-        return result.length > 0 ? result[0]: null;
-    }
-
-    const getTileAt = (x, y, tiles) => {
-        return tiles.find(tile => {
-            return tile.indexX === x && tile.indexY === y;
-        });
-    }
-
-    // updates Board with all the valid tiles that the current piece can move to
-    const getValidMoves = (validTiles, piece) => {
-        const result = [];
-
-        const tilesAtOffset1 = getTilesWithOffset(validTiles, piece, 1);
-        const tilesAtOffset2 = getTilesWithOffset(validTiles, piece, 2);
-        console.log('tilesAtOffset2',tilesAtOffset2);
-        tilesAtOffset1.forEach(tile => {
-            if(!isOccupied(tile)){
-                result.push(tile);
-            }
-
-            if(tileContainsEnemy(piece.value, tile.value) ){
-                let destinationTile = canEatAtTile(tile, tilesAtOffset2);
-                if(destinationTile){
-                    updateTargetArr(piece, getPieceAt(tile.indexX, tile.indexY));
-                    result.push(destinationTile);
-                }
-
-            }
-        });
-
-        setBoard(previous => {
-            const newBoard = [...previous];
-            
-            newBoard.forEach(tile => {
-                result.forEach(validTile =>{
-                    if(tile.indexX === validTile.indexX && tile.indexY === validTile.indexY){
-                        tile.canMoveTo = true;
-                    }
-                })
-            });
-
-            return newBoard;
-
-        })
-
-    }
-    const canEatAtTile = (tile, tilesAtOffset2) => {
-        const px = getIndexX(hoveredPiece.posX);
-        const py = getIndexY(hoveredPiece.posY);
-        let d = null;
-        if(px > tile.indexX){
-            if(py > tile.indexY){
-                // setEatDirection(direction.topLeft);
-                d = direction.topLeft;
-            }else{
-                // setEatDirection(direction.bottomLeft);
-                d = direction.bottomLeft;
-            }
-        }else{
-            if(py < tile.indexY){
-                // setEatDirection(direction.bottomRight);
-                d = direction.bottomRight;
-            }else{
-                // setEatDirection(direction.topRight);
-                d = direction.topRight;
-            }
-        }
-        // console.log('eatDirection', eatDirection);
-        let destination = null;
-        switch(d){
-            case direction.topRight:
-                destination = getTileAt(tile.indexX+1, tile.indexY-1, tilesAtOffset2);
-                break;
-            case direction.bottomRight:
-                destination = getTileAt(tile.indexX+1, tile.indexY+1, tilesAtOffset2);
-                break;
-            case direction.bottomLeft:
-                destination = getTileAt(tile.indexX-1, tile.indexY+1, tilesAtOffset2);
-                break;
-            case direction.topLeft:
-                destination = getTileAt(tile.indexX-1, tile.indexY-1, tilesAtOffset2);
-                break;
-            default:
-                // do nothing
-
-        }
-        return destination && !isOccupied(destination)? destination : null;
-
-
-    }
-    const getTilesWithOffset = (tiles, piece, offset) => {
-        const px = getIndexX(piece.posX);
-        const py = getIndexY(piece.posY);
-        return tiles.filter(tile => {
-
-            if(piece.isKing){
-                return (
-                    tile.indexX === px - offset ||
-                    tile.indexX === px + offset ||
-                    tile.indexY === py - offset ||
-                    tile.indexY === py + offset
-                );
-            }
-            else if(piece.value === tileValues.player1){
-                return (
-                    ( tile.indexX === px-offset && tile.indexY === py+offset) ||
-                    ( tile.indexX === px+offset && tile.indexY === py+offset )
-                )
-            }
-            else if(piece.value === tileValues.player2){
-                return (
-                    ( tile.indexX === px-offset && tile.indexY === py-offset) ||
-                    ( tile.indexX === px+offset && tile.indexY === py-offset )
-                )
-            }
-        })
-    }
     return (
         <div className={css(styles.board)}>
             {board.map((tile, i) => (

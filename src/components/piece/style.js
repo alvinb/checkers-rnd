@@ -38,7 +38,7 @@ export const style = (styles) =>
     },
 
     king: {
-        border: '2px solid '+colors.king,
+        border: '3px solid '+colors.king,
         top: styles.posY-1+'px',
         left: styles.posX-1+'px'
     }

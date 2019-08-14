@@ -11,11 +11,11 @@ export const TileContext = createContext();
 export const AppProvider = props => {
     const [app, setApp] = useState({
         size: 8,
-        player1PieceCount: 12,
-        playerTwoPieceCount: 12,
         isGameOver: false,
+        isAiEnabled: false,
         playersTurn: tileValues.player1 // player 1 moves first
     });
+    // const [players, setPlayers] = useState([])
     const [board, setBoard] = useState([
         // {
         //     indexX: 0,
