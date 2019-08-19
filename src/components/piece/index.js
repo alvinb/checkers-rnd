@@ -26,7 +26,7 @@ const Piece = ({ posX, posY, value, isKing, isSelected, id, x, y, canMove }) => 
     
     const styles = style({posX, posY, isHovered});
 
-
+    // effect for highlighting hovered pieces
     useEffect(() =>{
         if(isHovered){
             setCanMoveTo(getHoveredPiece(id, pieces), board, setBoard);
@@ -36,6 +36,7 @@ const Piece = ({ posX, posY, value, isKing, isSelected, id, x, y, canMove }) => 
     },[isHovered])
 
     
+    // handler for when user is hovering on the piece
     const handleMouseEnter = (e) => {
         console.log('isHoverDisabled', isHoverDisabled);
         console.log('player turn', app.playersTurn);
@@ -47,13 +48,15 @@ const Piece = ({ posX, posY, value, isKing, isSelected, id, x, y, canMove }) => 
         
         setIsHovered(true);
     }
+
+    // handler for when the mouse leaves the piece after hovering
     const handleMouseLeave = e => {
 
         setIsHovered(false);
 
     };
 
-
+    // handler for when user has started dragging the piece
     const dragStart = (event) => {
         event.dataTransfer.setData('srcId', event.target.id);
 
@@ -65,6 +68,7 @@ const Piece = ({ posX, posY, value, isKing, isSelected, id, x, y, canMove }) => 
 
     }
 
+    // handler when the user has finished dragging the piece
     const dragEnd = () => {
       unSelectPiece(id, pieces, setPieces);
     };

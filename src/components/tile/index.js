@@ -49,11 +49,9 @@ const Tile = ({indexX, indexY, isPrimaryColor, value, canMoveTo, id}) => {
             x: targetX,
             y: targetY
         }
-        
-
     }
     
-
+    // once the user has dropped the piece, make the necessary calculations
     const handleDrop = (event) => {
         if(!canMoveTo) return;
         const selectedPiece = getSelected(pieces);
@@ -135,10 +133,7 @@ const Tile = ({indexX, indexY, isPrimaryColor, value, canMoveTo, id}) => {
               return newAppState;
             });
             
-
         }
-        
-        
 
     }
     const handleDragOver = (event) => {

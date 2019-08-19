@@ -1,4 +1,4 @@
-import { tileSize, offsetX, offsetY,  pieceSize, tileValues, direction } from './game';
+import { tileValues } from './game';
 import { getPossibleMoves } from './pieces';
 
 export const setCanMoveTo = (piece, tilesState, setTilesState) => {

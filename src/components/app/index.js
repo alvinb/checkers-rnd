@@ -115,9 +115,7 @@ function App() {
         if(typeof piece === 'undefined') return;
         
         const {x,y} = piece;
-        // select the piece to move
-        selectPiece(piece.id, pieces, setPieces);
-
+        
         // hightlight possible moves
         setCanMoveTo(piece, board, setBoard)
         const possibleMoves = getPossibleMoves(piece, board);
@@ -185,6 +183,7 @@ function App() {
                     const newValidPieces = pieces.filter((piece) => {
                         return piece.canMove;
                     });
+                    debugger;
                     moveAiPiece(newValidPieces);
                 }, 500);
             }

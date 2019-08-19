@@ -1,9 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
-
-import { AppContext } from './../provider/app-provider';
-
-
-import { tileSize, offsetX, offsetY,  pieceSize, tileValues } from './game';
+import { tileSize, offsetX, offsetY, tileValues } from './game';
 import { getValidTiles, getTileAtDistance, tileContainsEnemy } from './tiles';
 
 export const setCoordinates = (payload, piecesState, setPiecesState) => {
