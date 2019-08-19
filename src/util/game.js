@@ -1,3 +1,6 @@
+import { getPiecesThatCanMove } from "./pieces";
+
+
 export const tileValues = {
     notUsed: -1,
     neutral: 0,
@@ -9,6 +12,24 @@ export const direction = {
     bottomRight: 'bottom-right',
     bottomLeft: 'bottom-left',
     topLeft: 'top-left'
+};
+
+export const gameState = {
+    setup: 0,
+    started: 1,
+    player1Wins: 3,
+    player2Wins: 4,
+    draw: 5
+
+};
+
+export const messages = {
+    player1Wins: 'Game Over: Player 1 wins',
+    player2Wins: 'Game Over: Player 2 wins',
+    draw: 'Game Over: draw',
+    player1sTurn: 'Player 1\'s turn',
+    player2sTurn: 'Player 2\'s turn',
+    loading: 'Setting up game...'
 };
 
 export const boardSize = 8;
@@ -67,4 +88,68 @@ export const isOccupiedAt = (x, y, tiles) => {
     });
     return (tile.value === tileValues.player1 || tile.value === tileValues.player2)
 
+}
+
+export const setLastMove = (piece, gameState, setGameState) => {
+    setGameState({
+      ...gameState,
+      lastMove: piece
+    });
+}
+
+export const setGameStatus = (payload, gameState, setGameState) => {
+    const { gameStatus, playersTurn } = payload;
+
+    setGameState({
+      ...gameState,
+      playersTurn: playersTurn,
+      gameStatus: gameStatus
+    });
+}
+
+export const getGameStatus = (game, pieces) => {
+    const { gameStatus } = game;
+    const player1Pieces = pieces.filter(piece => {
+        return piece.value === tileValues.player1
+    });
+    const player2Pieces = pieces.filter(piece => {
+      return piece.value === tileValues.player1;
+    });
+    const piecesThatCanMove = getPiecesThatCanMove(pieces, game.playersTurn);
+
+    switch (gameStatus) {
+      case gameState.started:
+        //if there are no more p1 pieces
+        if (player1Pieces.length === 0) {
+          return gameState.player2Wins;
+
+          //if there are no more p2 pieces
+        } else if (player2Pieces.length === 0) {
+          return gameState.player1Wins;
+
+          // if p1 or p2 cant move any of their pieces
+        } else if (piecesThatCanMove.length === 0) {
+          return game.playersTurn === tileValues.player1
+            ? gameState.player2Wins
+            : gameState.player1Wins;
+        }else{
+            return gameState.started;
+        }
+    
+      case gameState.setup:
+      case gameState.draw:
+      default:
+        return gameState.started;
+    }
+}
+
+export const shuffle = (collection) => {
+    let j, x, i;
+    for (i = collection.length - 1; i > 0; i--) {
+      j = Math.floor(Math.random() * (i + 1));
+      x = collection[i];
+      collection[i] = collection[j];
+      collection[j] = x;
+    }
+    return collection;
 }

@@ -3,7 +3,7 @@ import { css } from "aphrodite/no-important";
 import { style } from "./style";
 
 //context
-import { BoardContext, PieceContext } from './../../provider/app-provider';
+import { BoardContext, PieceContext, AppContext } from './../../provider/app-provider';
 
 //components
 import Tile from './../tile';
@@ -13,13 +13,15 @@ import Piece from './../piece';
 import { 
     tileValues,
     getPosX, 
-    getPosY
+    getPosY,
+    gameState,
+    setGameStatus
 } from './../../util/game';
-
 
 const Board = ({size}) => {
     const styles = style();
-
+    
+    const {app, setApp} = useContext(AppContext);
     const { board, setBoard } = useContext(BoardContext);
     const { pieces, setPieces } = useContext(PieceContext);
 
@@ -33,7 +35,6 @@ const Board = ({size}) => {
         const pieceData = [];
         let isPrimaryColor = true;
         let value = -1;
-
         if(!size) return;
 
         for(let y = 0; y < size; y++){
@@ -59,7 +60,9 @@ const Board = ({size}) => {
                         prevX: x,
                         prevY: y,
                         isSelected: false,
-                        isHovered: false,
+                        hasEaten: false,
+                        canEat: false,
+                        canMove: false,
                         id: `${x}${y}`
                     });
                 }else if(y >= 5 && isPrimaryColor){
@@ -74,7 +77,9 @@ const Board = ({size}) => {
                       prevX: x,
                       prevY: y,
                       isSelected: false,
-                      isHovered: false,
+                      hasEaten: false,
+                      canEat: false,
+                      canMove: false,
                       id: `${x}${y}`
                     });
                 }else{
@@ -94,8 +99,12 @@ const Board = ({size}) => {
         }
         setBoard(boardData);
         setPieces(pieceData);
-    }, [])
+        setGameStatus({
+            gameStatus: gameState.started,
+            playersTurn: tileValues.player1
+        }, app, setApp);
 
+    }, [app.gameStatus])
 
     return (
         <div className={css(styles.board)}>
@@ -114,7 +123,9 @@ const Board = ({size}) => {
                     value={piece.value}
                     isKing={piece.isKing}
                     isSelected={piece.isSelected}
-                    isHovered={piece.isHovered}
+                    hasEaten={piece.hasEaten}
+                    canEat={piece.canEat}
+                    canMove={piece.canMove}
                     posX={piece.posX}
                     posY={piece.posY}
                     x={piece.x}

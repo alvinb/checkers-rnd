@@ -33,8 +33,8 @@ export const colors = {
   medium: "#dddddd",
   dark: "#aaaaaa",
   error: "#D0021B",
-  player1: "#ffffff",
-  player2: "#000000",
+  player1: "#000000",
+  player2: "#ffffff",
   hover: "#87CEEB",
   king: "#FFDF00"
 };

@@ -41,5 +41,9 @@ export const style = (styles) =>
         border: '3px solid '+colors.king,
         top: styles.posY-1+'px',
         left: styles.posX-1+'px'
+    },
+
+    canMove: {
+        boxShadow: '0px 0px 3px 3px'+colors.hover
     }
   });

@@ -1,16 +1,22 @@
 import React, { useContext, useState, useEffect }from 'react';
 import { css } from 'aphrodite/no-important';
 import { style } from './style';
-import { tileValues, getPosX, getPosY, getIndexX, getIndexY, direction, boardSize } from './../../util/game';
+import { tileValues } from './../../util/game';
 
 import { BoardContext, PieceContext, AppContext } from './../../provider/app-provider';
 
 // util
-import { getSelected, movePieceTo, getPieceAt, removePiece } from './../../util/pieces';
+import {
+  getSelected,
+  movePieceTo,
+  getPieceAt,
+  removePiece,
+  canPieceEat
+} from "./../../util/pieces";
 import { setTileValueAt, resetTileState } from "./../../util/tiles";
 
-// custom hooks
-// import { usePiecePreviousCoordinate } from './../../hooks/piece';
+import { setLastMove } from './../../util/game';
+
 
 const Tile = ({indexX, indexY, isPrimaryColor, value, canMoveTo, id}) => {
     const { board, setBoard } = useContext(BoardContext);
@@ -28,8 +34,8 @@ const Tile = ({indexX, indexY, isPrimaryColor, value, canMoveTo, id}) => {
 
     const getMoveData = (selectedPiece) => {
 
-        const targetX = (indexX - getIndexX(selectedPiece.posX))/2;
-        const targetY = (indexY - getIndexY(selectedPiece.posY))/2;
+        const targetX = (indexX - selectedPiece.x)/2;
+        const targetY = (indexY - selectedPiece.y)/2;
         if(Math.abs(targetX) < 1 || Math.abs(targetY) < 1){
             return {
                 hasEaten: false,
@@ -50,8 +56,12 @@ const Tile = ({indexX, indexY, isPrimaryColor, value, canMoveTo, id}) => {
 
     const handleDrop = (event) => {
         if(!canMoveTo) return;
-        setHasDropped(true);
         const selectedPiece = getSelected(pieces);
+        setHasDropped(true);
+        console.log("---------------");
+        setLastMove(selectedPiece, app, setApp);
+        console.log(selectedPiece);
+
         const {prevX, prevY} = {...selectedPiece};
         
         const data = getMoveData(selectedPiece);
@@ -70,12 +80,20 @@ const Tile = ({indexX, indexY, isPrimaryColor, value, canMoveTo, id}) => {
             id: `${x}${y}`
         }, pieces, setPieces)
 
+        // make tile value equal the same as the piece to indicated that it is occupied
         setTileValueAt({
             x: indexX,
             y: indexY,
             value: selectedPiece.value
         }, board, setBoard);
         
+        // make the previous tile the piece was on neutral to indicate that it is unoccupied
+        setTileValueAt({
+            x: prevX,
+            y: prevY,
+            value: tileValues.neutral
+        }, board, setBoard);
+
         // remove piece that was eaten
         if(hasEaten){
 
@@ -83,24 +101,42 @@ const Tile = ({indexX, indexY, isPrimaryColor, value, canMoveTo, id}) => {
                 x: selectedPiece.x - data.x,
                 y: selectedPiece.y - data.y
             }, pieces, setPieces);
+            
 
             removePiece(toRemove.id, pieces, setPieces);
+
+            // make sure that the tile that occupied the we piece we removed is now neutral
+            setTileValueAt({
+                x: selectedPiece.x - data.x,
+                y: selectedPiece.y - data.y,
+                value: tileValues.neutral
+            }, board, setBoard);
+
+
+            console.log("selectedPiece", selectedPiece);
+            if(!canPieceEat(selectedPiece, board)){
+                setApp(previous => {
+                    const newAppState = { ...previous };
+                    const last = newAppState.playersTurn;
+                    console.log('last', last);
+                    newAppState.playersTurn = last === tileValues.player1 ? tileValues.player2 : tileValues.player1;
+        
+                    return newAppState;
+                });
+
+            }
+
+        }else{
+            setApp(previous => {
+                const newAppState = { ...previous };
+                const last = newAppState.playersTurn;
+                newAppState.playersTurn = last === tileValues.player1 ? tileValues.player2 : tileValues.player1;
+    
+              return newAppState;
+            });
             
 
         }
-        setTileValueAt({
-            x: prevX,
-            y: prevY,
-            value: tileValues.neutral
-        }, board, setBoard);
-
-        setApp(previous => {
-            const newAppState = { ...previous };
-            const last = newAppState.playersTurn;
-            newAppState.playersTurn = last === tileValues.player1 ? tileValues.player2 : tileValues.player1;
-
-          return newAppState;
-        });
         
         
 

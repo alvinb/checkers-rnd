@@ -13,3 +13,12 @@ export const usePiecePreviousCoordinate = (selectedP) => {
 
     return coordinates
 }
+// export const usePieceIdOfLastMove = (id) => {
+//   const [pieceId, setPieceId] = useState(null);
+
+//   useEffect(() => {
+//     setPieceId(true);
+//   }, [id]);
+
+//   return pieceId;
+// };
